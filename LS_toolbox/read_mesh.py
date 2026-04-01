@@ -76,6 +76,59 @@ def read_elements_dict(model_dict, keyword_filter=""):
     return elem_dict
 
 
+def parse_elements(model_dict, keyword_filter=""):
+    """
+    Parse elements from a model dictionary (from read_keyfile.read_keyfile_dict)
+    into a structured dictionary grouped by part id (pid).
+
+    :param model_dict: Dictionary {keyword: [[lines]]} from read_keyfile_dict.
+    :param keyword_filter: Additional filter string (e.g. "SOLID" to match "ELEMENT_SOLID").
+    :return: (parsed_dict, comments)
+        - parsed_dict: {pid: [[element_id, node_id1, node_id2, ...]]}
+        - comments: {keyword: [(position, content)]} where position is the number of
+          elements parsed before the comment in that keyword block.
+    """
+    # Local import to avoid circular dependency (read_keyfile imports read_mesh)
+    from LS_toolbox import read_keyfile as rk
+
+    # Default headers for each known element type
+    HEADERS = {
+        "SOLID": "$#   eid     pid      n1      n2      n3      n4      n5      n6      n7      n8",
+        "SHELL": "$#   eid     pid      n1      n2      n3      n4      n5      n6      n7      n8",
+        "BEAM":  "$#   eid     pid      n1      n2      n3     rt1     rr1     rt2     rr2   local",
+    }
+
+    parsed_dict = {}
+    comments = {}
+
+    for keyword, blocks in model_dict.items():
+        if "ELEMENT_" not in keyword or keyword_filter not in keyword:
+            continue
+
+        # Determine element type from keyword (e.g. "ELEMENT_SOLID" -> "SOLID")
+        elem_type = keyword.replace("ELEMENT_", "").split("_")[0]
+        header = HEADERS.get(elem_type)
+        if header is None:
+            continue
+
+        # Flatten blocks into a single list of lines
+        lines = [line for block in blocks for line in block]
+
+        entities, kw_comments = rk.parse_keyword(lines, header)
+        comments[keyword] = kw_comments
+
+        for entity in entities:
+            pid = entity["pid"]
+            eid = entity["eid"]
+            # Collect all fields except eid and pid, preserving order
+            remaining = [v for k, v in entity.items() if k not in ("eid", "pid")]
+            if pid not in parsed_dict:
+                parsed_dict[pid] = {"type": keyword, "elements": []}
+            parsed_dict[pid]["elements"].append([eid] + remaining)
+
+    return parsed_dict, comments
+
+
 def create_mesh(node_table, elem_table):
     """
     Create a mesh from the nodes and elements tables.
