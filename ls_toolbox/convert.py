@@ -1,7 +1,7 @@
 # Conversion tools to convert mesh from other formats to LS-DYNA format
 
 import numpy as np
-from LS_toolbox import write_keyfile as wk
+from ls_toolbox import write_keyfile as wk
 
 
 def read_cdbfile(path, exclude_elems_array=None, type='Tet'):

@@ -1,6 +1,6 @@
 import pyvista as pv
 import numpy as np
-from LS_toolbox import read_keyfile as rk
+from ls_toolbox import read_keyfile as rk
 
 def keyword2pvmesh(file_path: str) -> pv.UnstructuredGrid:
     """

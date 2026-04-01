@@ -20,13 +20,13 @@ export LSPREPOST_PATH="path/to/lsprepost/executable"
 
 ## Example usage 
 ### Copy/paste and run as it is:
+
 ```python
-import LS_toolbox as lst
+import ls_toolbox as lst
 import pyvista as pv
 import os
 import subprocess
 import numpy as np
-
 
 """
 Example using a beam 3D mesh .k file.
@@ -36,7 +36,7 @@ Finally, the simulation is run using LS-Dyna and the d3plot file is opened in LS
 Simulation files are cleared at the end (except for the .K file of the FE model).
 """
 
-# get LS_toolbox path
+# get ls_toolbox path
 lst_path = os.path.dirname(lst.__file__)
 
 # Path to the example keyfile
@@ -94,7 +94,8 @@ lst.prepost_commands.run_lsdyna(new_file_path)
 print("Done.")
 
 # Open the d3plot file in PrePost
-subprocess.check_call(f"\"{lst.prepost_commands.LS_PREPOST_PATH}\" {os.path.join(os.path.split(new_file_path)[0], 'd3plot')}", shell=True)
+subprocess.check_call(
+    f"\"{lst.prepost_commands.LS_PREPOST_PATH}\" {os.path.join(os.path.split(new_file_path)[0], 'd3plot')}", shell=True)
 
 # Clear simulation files
 lst.clear_sim_files.clear_sim_files(os.path.split(new_file_path)[0])

@@ -1,4 +1,4 @@
-from LS_toolbox import read_mesh as rm
+from ls_toolbox import read_mesh as rm
 import re
 
 

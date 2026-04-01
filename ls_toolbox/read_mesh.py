@@ -89,7 +89,7 @@ def parse_elements(model_dict, keyword_filter=""):
           elements parsed before the comment in that keyword block.
     """
     # Local import to avoid circular dependency (read_keyfile imports read_mesh)
-    from LS_toolbox import read_keyfile as rk
+    from ls_toolbox import read_keyfile as rk
 
     # Default headers for each known element type
     HEADERS = {
@@ -137,7 +137,7 @@ def parse_nodes(model_dict):
     :return: Dictionary {node_id: (x, y, z)}.
     """
     # Local import to avoid circular dependency (read_keyfile imports read_mesh)
-    from LS_toolbox import read_keyfile as rk
+    from ls_toolbox import read_keyfile as rk
 
     node_dict = {}
     comments = {}
@@ -170,7 +170,7 @@ def parsed_elements_to_model_dict(parsed_elements, model_dict, comments=None):
         (as returned by parse_elements).
     :return: Updated model dictionary with element keywords replaced.
     """
-    from LS_toolbox import read_keyfile as rk
+    from ls_toolbox import read_keyfile as rk
 
     if comments is None:
         comments = {}
@@ -246,7 +246,7 @@ def parsed_nodes_to_model_dict(parsed_nodes, model_dict):
     :return: Updated model dictionary with nodes.
     """
     # Local import to avoid circular dependency (read_keyfile imports read_mesh)
-    from LS_toolbox import read_keyfile as rk
+    from ls_toolbox import read_keyfile as rk
 
     node_lines = []
     for node_id, (x, y, z) in parsed_nodes.items():
