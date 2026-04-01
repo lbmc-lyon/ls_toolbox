@@ -158,6 +158,86 @@ def parse_nodes(model_dict):
 
     return node_dict, comments
 
+def parsed_elements_to_model_dict(parsed_elements, model_dict, comments=None):
+    """
+    Convert parsed elements back into a model dictionary format
+    (compatible with read_keyfile.read_keyfile_dict).
+
+    :param parsed_elements: {pid: {"type": keyword, "elements": [[eid, n1, n2, ...]]}}
+        as returned by parse_elements.
+    :param model_dict: Original model dictionary to update.
+    :param comments: {keyword: [(position, content)]} optional comments to re-insert
+        (as returned by parse_elements).
+    :return: Updated model dictionary with element keywords replaced.
+    """
+    from LS_toolbox import read_keyfile as rk
+
+    if comments is None:
+        comments = {}
+
+    # Default headers for formatting (same as parse_elements)
+    HEADERS = {
+        "SOLID": "$#   eid     pid      n1      n2      n3      n4      n5      n6      n7      n8",
+        "SHELL": "$#   eid     pid      n1      n2      n3      n4      n5      n6      n7      n8",
+        "BEAM":  "$#   eid     pid      n1      n2      n3     rt1     rr1     rt2     rr2   local",
+    }
+
+    # ---- Group elements by keyword type ----
+    # {keyword: [[eid, pid, n1, n2, ...], ...]}
+    keyword_elements = {}
+    for pid, data in parsed_elements.items():
+        keyword = data["type"]
+        if keyword not in keyword_elements:
+            keyword_elements[keyword] = []
+        for elem in data["elements"]:
+            # elem = [eid, n1, n2, ...] — re-insert pid after eid
+            keyword_elements[keyword].append([elem[0], pid] + elem[1:])
+
+    # ---- Rebuild lines for each keyword ----
+    for keyword, elements in keyword_elements.items():
+        elem_type = keyword.replace("ELEMENT_", "").split("_")[0]
+        header_str = HEADERS.get(elem_type)
+        if header_str is None:
+            continue
+
+        field_defs = rk._parse_header_line(header_str)
+
+        # Build a map  position -> [comment_lines]
+        kw_comments = comments.get(keyword, [])
+        comment_map = {}
+        for pos, content in kw_comments:
+            comment_map.setdefault(pos, []).append(content)
+
+        lines = []
+        for i, elem in enumerate(elements):
+            # Re-insert comments that appeared before this element
+            for c in comment_map.get(i, []):
+                lines.append(c)
+
+            # Format the element as a fixed-width line
+            line = ""
+            for j, (_, field_width) in enumerate(field_defs):
+                if j < len(elem):
+                    val = elem[j]
+                    if isinstance(val, float):
+                        line += f"{val:{field_width}.6e}"
+                    elif isinstance(val, int):
+                        line += f"{val:{field_width}d}"
+                    else:
+                        line += f"{str(val):>{field_width}}"
+                else:
+                    line += " " * field_width
+            lines.append(line)
+
+        # Trailing comments (after last element)
+        for c in comment_map.get(len(elements), []):
+            lines.append(c)
+
+        # Replace the keyword blocks in model_dict with one single block
+        model_dict[keyword] = [lines]
+
+    return model_dict
+
 
 def create_mesh(node_table, elem_table):
     """
