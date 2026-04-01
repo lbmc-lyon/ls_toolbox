@@ -46,6 +46,47 @@ def write_keyfile_dict(keyfile_dict: dict, file_path: str) -> None:
             f.write(line)
 
 
+def write_model_dict(model_dict: dict, file_path: str) -> None:
+    """
+    Write a model dictionary (from read_keyfile.read_keyfile_dict, possibly
+    modified by parsed_elements_to_model_dict / parsed_nodes_to_model_dict)
+    to an LS-DYNA keyword file (.k).
+
+    Handles the special meta-keys START_OF_FILE, KEYWORD and END_OF_FILE
+    that are created by read_keyfile_dict.
+
+    :param model_dict: Dictionary {keyword: [[lines]]} representing the model.
+    :param file_path:  Output file path.
+    """
+    META_KEYS = {"START_OF_FILE", "KEYWORD", "END_OF_FILE"}
+
+    with open(file_path, 'w') as f:
+        if "START_OF_FILE" in model_dict:
+            for line in model_dict["START_OF_FILE"]:
+                f.write(line)
+
+        f.write("*KEYWORD\n")
+        # Write optional lines that were stored under the KEYWORD key
+        if "KEYWORD" in model_dict:
+            for block in model_dict["KEYWORD"]:
+                for line in block:
+                    f.write(f"{line}\n")
+
+        for keyword, blocks in model_dict.items():
+            if keyword in META_KEYS:
+                continue
+            for block in blocks:
+                f.write(f"*{keyword}\n")
+                for line in block:
+                    f.write(f"{line}\n")
+
+        f.write("*END\n")
+
+        if "END_OF_FILE" in model_dict:
+            for line in model_dict["END_OF_FILE"]:
+                f.write(line)
+
+
 def add_node_set(list_lines: list, node_ids: np.ndarray) -> int:
     """
     Add node set to a .k file.
