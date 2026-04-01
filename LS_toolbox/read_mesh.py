@@ -58,6 +58,23 @@ def read_elements(mesh_file_path, keyword="ELEMENT_SOLID"):
     elem_table = elem_table[:, np.sum(elem_table, axis=0) != 0]
     return elem_table
 
+def read_elements_dict(model_dict, keyword_filter=""):
+    """
+    Read elements from a model dictionary (returned by read_keyfile.read_keyfile_dict).
+    Returns a dictionary of element types and their lines from all keywords
+    containing "ELEMENT_" and the optional keyword_filter.
+    :param model_dict: Dictionary of keywords and their lines {keyword: [[lines]]}.
+    :param keyword_filter: Additional filter string (e.g. "SOLID" to match "ELEMENT_SOLID").
+    :return: Dictionary {keyword: [lines]} for each matching ELEMENT keyword.
+    """
+    elem_dict = {}
+    for keyword, blocks in model_dict.items():
+        if "ELEMENT_" in keyword and keyword_filter in keyword:
+            elem_dict[keyword] = []
+            for block in blocks:
+                elem_dict[keyword].extend(block)
+    return elem_dict
+
 
 def create_mesh(node_table, elem_table):
     """
