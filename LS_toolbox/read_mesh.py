@@ -128,6 +128,36 @@ def parse_elements(model_dict, keyword_filter=""):
 
     return parsed_dict, comments
 
+def parse_nodes(model_dict):
+    """
+    Parse nodes from a model dictionary (from read_keyfile.read_keyfile_dict)
+    into a structured dictionary of node_id -> (x, y, z).
+
+    :param model_dict: Dictionary {keyword: [[lines]]} from read_keyfile_dict.
+    :return: Dictionary {node_id: (x, y, z)}.
+    """
+    # Local import to avoid circular dependency (read_keyfile imports read_mesh)
+    from LS_toolbox import read_keyfile as rk
+
+    node_dict = {}
+    comments = {}
+    for keyword, blocks in model_dict.items():
+        if keyword != "NODE":
+            continue
+
+        # Flatten blocks into a single list of lines
+        lines = [line for block in blocks for line in block]
+
+        entities, comments = rk.parse_keyword(lines, "$#   nid               x               y               z      tc      rc")
+        for entity in entities:
+            node_id = entity["nid"]
+            x = entity["x"]
+            y = entity["y"]
+            z = entity["z"]
+            node_dict[node_id] = (x, y, z)
+
+    return node_dict, comments
+
 
 def create_mesh(node_table, elem_table):
     """
