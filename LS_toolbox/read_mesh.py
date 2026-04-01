@@ -238,6 +238,25 @@ def parsed_elements_to_model_dict(parsed_elements, model_dict, comments=None):
 
     return model_dict
 
+def parsed_nodes_to_model_dict(parsed_nodes, model_dict):
+    """
+    Convert parsed nodes back to a model dictionary format.
+    :param parsed_nodes: Dictionary {node_id: (x, y, z)}.
+    :param model_dict: Original model dictionary to update.
+    :return: Updated model dictionary with nodes.
+    """
+    # Local import to avoid circular dependency (read_keyfile imports read_mesh)
+    from LS_toolbox import read_keyfile as rk
+
+    node_lines = []
+    for node_id, (x, y, z) in parsed_nodes.items():
+        line = f"{node_id:8d}{x:16.6e}{y:16.6e}{z:16.6e}      0      0\n"
+        node_lines.append(line)
+
+    # Update the model dictionary with the new NODE keyword
+    model_dict["NODE"] = [node_lines]
+    return model_dict
+
 
 def create_mesh(node_table, elem_table):
     """
