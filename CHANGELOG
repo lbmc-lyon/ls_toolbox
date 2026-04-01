@@ -1,0 +1,37 @@
+[0.1.1]
+Added read_keyfile and write_keyfile modules.
+
+[0.1.2]
+Corrected internal imports for read_keyfile and write_keyfile.
+
+[0.1.3]
+Added MAT_EROSION.
+Added __version__ to __init__.py.
+
+[0.1.4]
+Corrected MAT_EROSION.
+
+[0.1.5]
+Added CONTROL_TIMESTEP.
+Added several simulation file names to the "clear_sim_files" function.
+Added dsiplay.py file for display functions utilities.
+
+[0.1.6]
+Added an example on how to use the toolbox.
+
+[0.1.7]
+Added functions to read a keyfile to a dictionnary structure and write it to a keyfile.
+
+[0.1.8]
+Added functions to add parts, nodes and elements to a keyfile.
+Added a conversion module (only ansys to dyna for now).
+
+[0.1.8.1]
+Added the convert module to init.py.
+
+[0.1.8.2]
+Corrected import in convert.py.
+
+[0.1.9.0]
+Added several function to manipulate a model dictionary structure.
+Added functions to easily manipulate a mesh.
