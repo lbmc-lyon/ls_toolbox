@@ -1,62 +1,7 @@
-from dynareadout import key_file_parse
+# from dynareadout import key_file_parse
 import numpy as np
 import pyvista as pv
 
-
-def read_nodes(mesh_file_path):
-    """
-    Read a mesh file and return the nodes and elements.
-    :param mesh_file_path: Path to the mesh file.
-    :return: Nodes and elements.
-    """
-    keywords = key_file_parse(mesh_file_path)
-
-    # EXTRACT NODES
-    node_keywords = keywords["NODE"]
-    node_table = []
-    # Loop over all *NODE keywords
-    for i in range(len(node_keywords)):
-        # Loop over all cards of each *NODE keyword
-        for j in range(len(node_keywords[i])):
-            node = node_keywords[i][j]
-            # Then you can parse the variables of each card as integers and floats
-            # The list of integers holds all the widths of each variable in the card in characters
-            nid, x, y, z = node.parse_whole([8, 16, 16, 16])
-            node_table.append([nid, x, y, z])
-    return node_table
-
-
-def read_elements(mesh_file_path, keyword="ELEMENT_SOLID"):
-    """
-    Read a mesh file and return the elements and associated node ids.
-    :param mesh_file_path: Path to the mesh file.
-    :param keyword: Keyword to search for in the mesh file.
-    :return: Elements table (elements and node ids) [[elem_id, part_id, node_id1, node_id2, ...]].
-    """
-    skip_ortho = False
-    if "ORTHO" in keyword:
-        skip_ortho = True
-    keywords = key_file_parse(mesh_file_path)
-
-    # EXTRACT ELEMENTS
-    elem_keywords = keywords[keyword]
-    elem_table = []
-    # Loop over all *ELEMENT keywords
-    for i in range(len(elem_keywords)):
-        # Loop over all cards of each *ELEMENT keyword
-        for j in range(len(elem_keywords[i])):
-            if skip_ortho:
-                if not j % 3 == 0:
-                    continue
-            elem = elem_keywords[i][j]
-            # Then you can parse the variables of each card as integers and floats
-            # The list of integers holds all the widths of each variable in the card in characters
-            eid, pid, n1, n2, n3, n4, n5, n6, n7, n8 = elem.parse_whole([8, 8, 8, 8, 8, 8, 8, 8, 8, 8])
-            elem_table.append([eid, pid, n1, n2, n3, n4, n5, n6, n7, n8])
-    # Remove zero sum value columns
-    elem_table = np.array(elem_table)
-    elem_table = elem_table[:, np.sum(elem_table, axis=0) != 0]
-    return elem_table
 
 def read_elements_dict(model_dict, keyword_filter=""):
     """
@@ -134,7 +79,8 @@ def parse_nodes(model_dict):
     into a structured dictionary of node_id -> (x, y, z).
 
     :param model_dict: Dictionary {keyword: [[lines]]} from read_keyfile_dict.
-    :return: Dictionary {node_id: (x, y, z)}.
+    :return: Dictionary {node_id: (x, y, z)} and comments {keyword: [(position, content)]} where position is the number
+    of nodes parsed before the comment in that keyword block.
     """
     # Local import to avoid circular dependency (read_keyfile imports read_mesh)
     from ls_toolbox import read_keyfile as rk
@@ -286,4 +232,3 @@ def create_mesh(node_table, elem_table):
         cellstype = pv.CellType.QUAD
     mesh = pv.UnstructuredGrid(cells, [cellstype] * len(cells), nodes)
     return mesh
-

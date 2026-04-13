@@ -2,19 +2,6 @@ from ls_toolbox import read_mesh as rm
 import re
 
 
-# Read nodes coordinates from a .k file.
-# def read_nodes(file_path: str) -> dict:
-#     """
-#     Read a .k file and return the nodes coordinates.
-#     :param file_path: Path to the .k file.
-#     :return: Dictionary of nodes coordinates {node_id: [x, y, z]}.
-#     """
-#     nodes_list = rm.read_nodes(file_path)
-#     nodes = {}
-#     for node in nodes_list:
-#         nodes[node[0]] = node[1:]
-#     return nodes
-
 def read_keyfile(file_path: str) -> list:
     """
     Read a .k file and return a list of lines.
@@ -200,11 +187,31 @@ def get_ids(key: str, list_lines) -> list:
         i += 1
     return ids
 
-def read_elements(file_path: str, elements_keyword="ELEMENT_SOLID") -> list:
+
+def read_nodes(mesh_file_path):
     """
-    Read a .k file and return the elements.
-    :param file_path: Path to the .k file.
-    :return: List of elements [[element_id, node_id1, node_id2, ...]].
+    Read a mesh file and return the nodes dictionnary {nodeid: (x, y, z)}.
+    :param mesh_file_path: Path to the mesh file.
+    :return: Nodes and elements.
     """
-    elements = rm.read_elements(file_path, keyword=elements_keyword)
-    return elements
+    print(f"Deprecated: use `parse_nodes(read_keyfile_dict(mesh_file_path))` instead for more control and access to comments.")
+    model_dict = read_keyfile_dict(mesh_file_path)
+    node_dict = rm.parse_nodes(model_dict)[0]
+    return node_dict
+
+def read_elements(mesh_file_path, keyword="ELEMENT_SOLID"):
+    """
+    Read a mesh file and return the elements and associated node ids.
+    :param mesh_file_path: Path to the mesh file.
+    :param keyword: Keyword to search for in the mesh file.
+    :return: Elements table (elements and node ids) [[elem_id, part_id, node_id1, node_id2, ...]].
+    """
+    print(f"Deprecated: use `parse_elements(read_keyfile_dict(mesh_file_path), keyword_filter=keyword.replace('ELEMENT_', ''))` instead for more control and access to comments.")
+    model_dict = read_keyfile_dict(mesh_file_path)
+    elem_dict = rm.parse_elements(model_dict, keyword_filter=keyword.replace("ELEMENT_", ""))[0]
+    elem_table = []
+    for pid, data in elem_dict.items():
+        if data["type"] == keyword:
+            for elem in data["elements"]:
+                elem_table.append([elem[0], pid] + elem[1:])
+    return elem_table
