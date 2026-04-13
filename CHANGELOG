@@ -35,3 +35,7 @@ Corrected import in convert.py.
 [0.1.9.0]
 Added several function to manipulate a model dictionary structure.
 Added functions to easily manipulate a mesh.
+
+[0.1.9.1]
+Removed dependency to dynareadout.
+Added the new licence environment variable (Ansys) to the prepost command file requirement.
