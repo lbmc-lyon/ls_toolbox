@@ -13,6 +13,10 @@ LS_DYNA_PATH = None  # Path to the LS-Dyna executable
 try:
     LS_PREPOST_PATH = os.environ["LSPREPOST_PATH"]
     LS_DYNA_PATH = os.environ["LSDYNA_PATH"]
+    LSTC_LICENSE = os.environ["LSTC_LICENSE"]
+    LSTC_LICENSE_SERVER = os.environ["LSTC_LICENSE_SERVER"]
+    ANSYSLMD_LICENSE_FILE = os.environ["ANSYSLMD_LICENSE_FILE"]
+
 except:
     pass
 
@@ -26,6 +30,16 @@ if LS_DYNA_PATH is None:
     print("Command: setx LSDYNA_PATH \"path_to_lsdyna\"   (Don't forget the \"\" around the path)")
     sys.exit(1)
 
+if (LSTC_LICENSE and ANSYSLMD_LICENSE_FILE) is None:
+    print("Please set the LSTC_LICENSE variable to the type of license you have (e.g. 'network'")
+    print("Command: setx LSTC_LICENSE \"license_type\"   (Don't forget the \"\" around the license type)")
+    sys.exit(1)
+
+if (LSTC_LICENSE_SERVER and ANSYSLMD_LICENSE_FILE) is None:
+    print("Please set the LSTC_LICENSE_SERVER or ANSYSLMD_LICENSE_FILE variable to the address of your license server (e.g. '27000@server_address')")
+    print("Command: setx LSTC_LICENSE_SERVER \"license_server_address\"   (Don't forget the \"\" around the license server address)")
+    print("Command: setx ANSYSLMD_LICENSE_FILE \"license_server_address\"   (Don't forget the \"\" around the license server address)")
+    sys.exit(1)
 
 
 fringe_nb_dict = {
