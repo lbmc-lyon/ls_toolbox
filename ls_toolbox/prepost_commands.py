@@ -8,6 +8,9 @@ VERBOSE = False  # If True, the LS-PrePost and LS-Dyna output will be displayed 
 
 LS_PREPOST_PATH = None  # Path to the LS-PrePost executable
 LS_DYNA_PATH = None  # Path to the LS-Dyna executable
+LSTC_LICENSE = None
+LSTC_LICENSE_SERVER = None
+ANSYSLMD_LICENSE_FILE = None
 
 # Get the LS-PrePost and LS-Dyna paths from the environment variables
 try:
@@ -28,18 +31,21 @@ if LS_PREPOST_PATH is None:
 if LS_DYNA_PATH is None:
     print("Please set the LSDYNA_PATH variable to the path of the LS-Dyna executable.")
     print("Command: setx LSDYNA_PATH \"path_to_lsdyna\"   (Don't forget the \"\" around the path)")
-    sys.exit(1)
+    print("You will not be able to run LS-Dyna without this variable set.")
+    # sys.exit(1)
 
 if (LSTC_LICENSE and ANSYSLMD_LICENSE_FILE) is None:
     print("Please set the LSTC_LICENSE variable to the type of license you have (e.g. 'network'")
     print("Command: setx LSTC_LICENSE \"license_type\"   (Don't forget the \"\" around the license type)")
-    sys.exit(1)
+    print("You will not be able to run LS-Dyna without this variable set.")
+    # sys.exit(1)
 
 if (LSTC_LICENSE_SERVER and ANSYSLMD_LICENSE_FILE) is None:
     print("Please set the LSTC_LICENSE_SERVER or ANSYSLMD_LICENSE_FILE variable to the address of your license server (e.g. '27000@server_address')")
     print("Command: setx LSTC_LICENSE_SERVER \"license_server_address\"   (Don't forget the \"\" around the license server address)")
     print("Command: setx ANSYSLMD_LICENSE_FILE \"license_server_address\"   (Don't forget the \"\" around the license server address)")
-    sys.exit(1)
+    print("You will not be able to run LS-Dyna without this variable set.")
+    # sys.exit(1)
 
 
 fringe_nb_dict = {
